@@ -1,2 +1,8 @@
-
+Introduction
+==============
 Fudan-xk is an automatic course selection robot for Fudan University undergraduates.
+
+Usage
+==============
+1. Edit settings.py and add the courses you want to the list defined in the 'LIST' element of the settings dictionary. Course IDs are stored as strings and are separated by commas.
+2. Run xk.py, and wait until course application succeeds or fails.
