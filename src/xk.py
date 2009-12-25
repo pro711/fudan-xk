@@ -20,7 +20,7 @@
 #-----------------------------------------------------------------------------
 
 '''
-The automatic course chooser for Fudan University Undergraduates.
+The automatic course registration robot for Fudan University Undergraduates.
 What it does is posting data to the xk server repeatedly so you don't have to
 do it yourself.
 Note that this version works with Python 2.6 and may not work with Python 3.0
