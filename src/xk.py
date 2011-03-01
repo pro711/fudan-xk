@@ -223,7 +223,10 @@ class XkNavigator(BaseNavigator):
     def _pl(self, message):
         """_pl stands for _print_log"""
         if self.PRINT_LOG is True:
-            print message.encode(self.encoding)
+            if (isinstance(message, unicode)):
+                print message.encode(self.encoding)
+            else:
+                print message
             sys.stdout.flush()
         
 
