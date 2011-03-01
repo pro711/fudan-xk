@@ -26,6 +26,7 @@ do it yourself.
 Note that this version works with Python 2.6 and may not work with Python 3.0
 or older versions. And it only works with BeautifulSoup 3.0.7a.
 '''
+
 import os, sys, time
 import re
 import copy
@@ -108,7 +109,10 @@ class XkNavigator(BaseNavigator):
         self.lst = settings['LIST']
         self.max = settings['MAX_ATTEMPTS']
         self.interval = settings['INTERVAL']
-        self.encoding = 'gb2312'    # Console encoding
+        if sys.stdout.isatty():
+            self.encoding = sys.stdout.encoding    # Console encoding
+        else:
+            self.encoding = 'UTF-8'
 
     def get_v_code(self):
         # Get verification code
@@ -157,7 +161,7 @@ class XkNavigator(BaseNavigator):
                 elements = [e.strip() for e in elements]
                 text = ','.join(elements)
                 self.course_info.append(text)
-                print text
+                print text.encode(self.encoding)
         for i in self.course_info[1:-1]:
             self.course_selected.append(i.split(',')[0])
     
@@ -169,7 +173,7 @@ class XkNavigator(BaseNavigator):
             return False
         success = False    # whether succeed
         data=urllib.urlencode([('selectionId',no),  # course id
-                               ('xklb','ss'),   # I don't know what this means..
+                               ('xklb','ss'),   # I don't know what this means... xuan ke lei bie?
                                ('rand',self.rand),  # verification code
                                ('type','0')])
         req = urllib2.Request(self.URL_SUBMIT,data)
@@ -219,37 +223,50 @@ class XkNavigator(BaseNavigator):
     def _pl(self, message):
         """_pl stands for _print_log"""
         if self.PRINT_LOG is True:
-            print message
+            print message.encode(self.encoding)
+            sys.stdout.flush()
         
 
 if __name__ =='__main__':
-    print '''
-                    *** WARNING ***
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+    if sys.stdout.isatty():
+        # we are running on a terminal
+        print '''
+                        *** WARNING ***
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
 
-  Do you agree?(y/n)
-'''
-    agree=raw_input()
-    if agree != 'y':
-        sys.exit(0)
+      Do you agree?(y/n)
+    '''
+        agree=raw_input()
+        if agree != 'y':
+            sys.exit(0)
 
-    import getpass
-    student = raw_input("Your Stu No:")
-    password = getpass.getpass("Your password (Using Stu No "+str(student)+
-                               ", password will not be displayed):")
-    from settings import settings
-    settings['USER'] = student
-    settings['PSW'] = password
+        import getpass
+        student = raw_input("Your Stu No:")
+        password = getpass.getpass("Your password (Using Stu No "+str(student)+
+                                   ", password will not be displayed):")
+        from settings import settings
+        settings['USER'] = student
+        settings['PSW'] = password
 
-    xk = XkNavigator(settings)
-    if xk.login() == True:
-        xk.get_course_selected()
-        xk.start()
-        xk.logout()
-    raw_input()
+        xk = XkNavigator(settings)
+        if xk.login() == True:
+            xk.get_course_selected()
+            xk.start()
+            xk.logout()
+        raw_input()
+    else:
+        # we are running in the background
+        # define here your student ID and password in settings.py
+        from settings import settings
+
+        xk = XkNavigator(settings)
+        if xk.login() == True:
+            xk.get_course_selected()
+            xk.start()
+            xk.logout()
 
 
 
